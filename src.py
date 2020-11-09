@@ -138,8 +138,16 @@ class FoldHasher:
     item is located within our hashtable
     
     self.hashTable is a hashTable created using loadFactorOptimizer
+    self.prime is prime number used in hashing process
+    self.loadFactor is loadFactor from hashing process
+    self.foldLenfgth is foldlength used in hashing process
     """
     def __init__(self, numList, primes):
+        """
+        Args:
+            numList (list): list of integers to be hashed using folding method
+            primes (list): list of prime numbers to be used in hashing process
+        """``
         self.hashTable, self.prime, self.loadFactor, self.foldLength = loadFactorOptimizer(numList, primes)
 
     def find(self, item):
