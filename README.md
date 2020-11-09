@@ -1,0 +1,2 @@
+# FoldHashing
+This repo contains functions and classes used for hashing numbers / lists of numbers based on a basic folding method. The main function of interest is loadFactorOptimizer, which will create a hashtable for numbers in a list of numbers, with the goal of maximizing the loadFactor of our hashtable, with the loadFactor being equal to: (nonEmpty items in hashtable) / (total items in hashtable). We achieve this by returning the first hashtable for which all of our numbers in our num list are granted an entry in our hashtable.
