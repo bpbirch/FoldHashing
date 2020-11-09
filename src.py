@@ -168,6 +168,7 @@ class FoldHasher:
             return False
 
 if __name__ == '__main__':
+    # testing
     fh = FoldHasher(nums, primes)
     print(fh.hashTable)
     print(fh.prime)
