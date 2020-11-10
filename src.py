@@ -138,7 +138,12 @@ class FoldHasher:
     Class that contains a hashTable, and provides find method for determining if an
     item is located within our hashtable
 
-    Our add method utilizes chain collision resolution. This means that add firs identifies the slot where we should insert item. If that slot is None, then we insert item there. If slot is int, then we create a new instance of FoldHasher, and insert it into that slot with parameters numList = [original entry, item]. If slot is a FoldHasher, then we recursively call add for that slot
+    Our add method utilizes chain collision resolution. 
+    This means that add firs identifies the slot where we should insert item. 
+    If that slot is None, then we insert item there. 
+    If slot is int, then we create a new instance of FoldHasher, 
+    and insert it into that slot with parameters numList = [original entry, item]. 
+    If slot is a FoldHasher, then we recursively call add for that slot
 
     
     self.hashTable is a hashTable created using loadFactorOptimizer
