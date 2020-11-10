@@ -18,7 +18,7 @@ def foldNumber(num, foldLength):
     Args:
         num (int): number for which we want to create a hash
         foldLength (int): length of subportions of num that we want to add together.
-            for example, foldLength=4 means that num=1356081717 breaks down to 1356, 0817, 17, and then added
+            for example, foldLength=4 means that num=1356081717 breaks down to 1356, 0817, 17, and then summed
 
     Returns:
         total (int): total that can then be used, along with a prime and modular division, to hash original number
@@ -106,6 +106,7 @@ def loadFactorOptimizer(numList, primes):
             foldLength (int): foldLength used in our folding hashing algorithm
     """
     itemLength = len(str(numList[0]))
+    # we're using the length of the first number in numList, but we could have chosen any entry
     done = False
     # here is where the actual optimization comes in
     # we want to make sure that we're getting all of our numbers hashed,
@@ -136,6 +137,9 @@ class FoldHasher:
     """
     Class that contains a hashTable, and provides find method for determining if an
     item is located within our hashtable
+
+    Our add method utilizes chain collision resolution. This means that add firs identifies the slot where we should insert item. If that slot is None, then we insert item there. If slot is int, then we create a new instance of FoldHasher, and insert it into that slot with parameters numList = [original entry, item]. If slot is a FoldHasher, then we recursively call add for that slot
+
     
     self.hashTable is a hashTable created using loadFactorOptimizer
     self.prime is prime number used in hashing process
@@ -147,34 +151,80 @@ class FoldHasher:
         Args:
             numList (list): list of integers to be hashed using folding method
             primes (list): list of prime numbers to be used in hashing process
-        """``
+        """
+        numList = set(numList) # to avoid repeats
+        numList = list(numList)
+        numList = [int(item) for item in numList] 
+        # we use the preceding line because some modules, like numpy,
+        # use int64
         self.hashTable, self.prime, self.loadFactor, self.foldLength = loadFactorOptimizer(numList, primes)
+
+    def __repr__(self):
+        return f'{self.hashTable}'
+    
+    def __iter__(self):
+        # making HashFolder iterable
+        iterLength = len(self.hashTable)
+        for i in range(iterLength):
+            yield self.hashTable[i]
+            
+
+    def add(self, item):
+        """
+        add first identifies the slot where we should insert item
+        If that slot is None, then we insert item there
+        If slot is int, then we create a new instance of FoldHasher, 
+        and insert it into that slot with parameters numList = [original entry, item]
+        If slot is a FoldHasher, then we recursively call add for that slot
+
+        Note that we utilize chain collision resolution in our add functionality
+
+        Args:
+            item (int): integer to be added to self.hashTable
+        """
+        # first have to use foldNumber to find hashed value, to find index
+        total = foldNumber(item, self.foldLength)
+        if not self.hashTable[total%self.prime]:
+            self.hashTable[total%self.prime] = item
+        else:
+            if self.hashTable[total%self.prime] == item:
+                pass
+            if type(self.hashTable[total%self.prime]) == int:
+                # if item at index is int, then create and insert a new instance of FoldHahser at index
+                itemList = [self.hashTable[total%self.prime], item]
+                # then insert new hashTable at that index
+                self.hashTable[total%self.prime] = FoldHasher(itemList, primes)
+            else:
+                if type(self.hashTable[total%self.prime]) == FoldHasher:
+                    # here is where we recursively insert sub hashtables:
+                    self.hashTable[total%self.prime].add(item)
 
     def find(self, item):
         """
-        returns index of searched item if it is present in self.hashtable
-        we have to use self.foldLength and self.prime to reverse our hashing algorithm for this process
+        returns boolean True or False based on whether item is contained
+        in self.hashTable. Since collision resolution in hashTable was 
+        achieved through chaining, find is called recursively on sub-hashtables
+        contained in self.hashTable
 
         Args:
             item (int): integer we are searching for in self.hashTable
 
         Returns:
-            index or False (int or bool): either index of found item or False if not found
+            True or False (bool): boolean indicating presence of item in self.hashTable, or in a sub-hashtable of self.hashTable
         """
         total = foldNumber(item, self.foldLength)
         if self.hashTable[total%self.prime] == item:
-            return total%self.prime
-        else:
-            return False
+            return True
+        if type(self.hashTable[total%self.prime]) == FoldHasher:
+            fh = self.hashTable[total%self.prime]
+            return fh.find(item) # pick up here *******************
+
+
 
 if __name__ == '__main__':
     # testing
     fh = FoldHasher(nums, primes)
-    print(fh.hashTable)
-    print(fh.prime)
-    print(fh.loadFactor)
-    print(fh.foldLength)
-    print()
+    print(type(fh) == FoldHasher)
 
     # check to make sure all items from nums are in our hashTable
     goodCount = 0
@@ -195,5 +245,26 @@ if __name__ == '__main__':
         if item != None:
             num = item
             break
-    print(num)
+    
+    print(fh.hashTable)
     print(fh.find(num))
+    print(fh.find(6732519347))
+    print()
+
+    # .add() functionality
+    print('add functionality testing')
+    fh.add(8889990000)
+    print(fh) 
+    # now using modulo 0 between 8889990000 and 8889990000+fh.prime 
+    # to make sure that adding to sub hashtable is functioning, which it is
+    fh.add(8889990000+fh.prime)
+    print(fh)
+    print()
+    
+    # now checking to maked sure .find() works on sub hashTables
+    print(fh.find(8889990000+fh.prime))
+
+    # check third level of recursion:
+    fh.add(8889990000+2*fh.prime)
+    print(fh)
+    print(fh.find(8889990000+2*fh.prime)) # all of these are checking out
