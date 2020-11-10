@@ -169,9 +169,8 @@ class FoldHasher:
     
     def __iter__(self):
         # making HashFolder iterable
-        iterLength = len(self.hashTable)
-        for i in range(iterLength):
-            yield self.hashTable[i]
+        for item in self.hashTable:
+            yield item
             
 
     def add(self, item):
@@ -192,8 +191,8 @@ class FoldHasher:
         if not self.hashTable[total%self.prime]:
             self.hashTable[total%self.prime] = item
         else:
-            if self.hashTable[total%self.prime] == item:
-                pass
+            if self.hashTable[total%self.prime] == item: # avoiding duplicates
+                return
             if type(self.hashTable[total%self.prime]) == int:
                 # if item at index is int, then create and insert a new instance of FoldHahser at index
                 itemList = [self.hashTable[total%self.prime], item]
@@ -223,7 +222,8 @@ class FoldHasher:
         if type(self.hashTable[total%self.prime]) == FoldHasher:
             fh = self.hashTable[total%self.prime]
             return fh.find(item) # pick up here *******************
-
+        if self.hashTable[total%self.prime] == None:
+            return False
 
 
 if __name__ == '__main__':
@@ -243,15 +243,14 @@ if __name__ == '__main__':
     print()
 
     # testing .find() functionality
-    print(fh.find(13))
+    print('should be false:', fh.find(13)) # check
     # gather a nonEmpty entry to test for True:
     num = 0
     for item in fh.hashTable:
         if item != None:
             num = item
             break
-    
-    print(fh.hashTable)
+
     print(fh.find(num))
     print(fh.find(6732519347))
     print()
@@ -260,6 +259,10 @@ if __name__ == '__main__':
     print('add functionality testing')
     fh.add(8889990000)
     print(fh) 
+    print()
+    # testing add duplicate:
+    fh.add(8889990000) 
+    print(fh)
     # now using modulo 0 between 8889990000 and 8889990000+fh.prime 
     # to make sure that adding to sub hashtable is functioning, which it is
     fh.add(8889990000+fh.prime)
