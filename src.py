@@ -27,7 +27,7 @@ def foldNumber(num, foldLength):
     done = False
     strNums = []
     while stringNum and not done:
-        sNum = str(stringNum[:foldLength]) if len(stringNum) > foldLength else str(stringNum)
+        sNum = stringNum[:foldLength] if len(stringNum) > foldLength else stringNum
         strNums.append(int(sNum))
         if foldLength > len(stringNum):
             done = True
